@@ -1,7 +1,6 @@
 package core;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Tools {
 	
@@ -10,32 +9,14 @@ public class Tools {
 		throw new AssertionError("Shouldn't instantiate this utility class");
 	}
 	
-	/**
-	 * Generates several random integers, without repetition.
-	 * @param n the amount of randomly generated numbers needed. Needs to be smaller than the interval [min,max].
-	 * @param min the minimum value, inclusive
-	 * @param max the maximum value, inclusive
-	 * @return An array of n random numbers picked from the interval [min,max]
-	 */
-	public static int[] randomIntegers (int n, int min, int max) throws AssertionError{
-		if(n>(max-min)) {
-			throw new AssertionError("n needs to be smaller than the interval");
-		}
+	public int[] genRandomIntegers(int n, int min, int max){
+	   	int[] numbers = new int[n];
 
-		else {
-			int[] randomNumbers = new int[n];
-			ArrayList<Integer> list = new ArrayList<Integer>();
-			for (int i=min; i<=max; i++) {
-				list.add(new Integer(i));
-			}
-
-			Collections.shuffle(list);
-			for (int i=0; i<n; i++) {
-				randomNumbers[i] = list.get(i);
-			}
-
-			return randomNumbers;
-		}
-	}
+	    for (int i = 0; i < n; i++)
+	    {
+	        numbers[i] = ThreadLocalRandom.current().nextInt(min, max + 1);
+	    }
+	   return numbers;
+	}  
 
 }

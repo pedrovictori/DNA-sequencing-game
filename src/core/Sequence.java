@@ -9,11 +9,11 @@ import javafx.collections.ModifiableObservableListBase;
 import javafx.scene.paint.Color;
 
 public class Sequence extends ModifiableObservableListBase<Base>{
-	enum Base {
-		A('a',Color.DEEPSKYBLUE),
-		C('c',Color.RED),
-		G('g',Color.LIMEGREEN),
-		T('t',Color.GOLD);
+	public enum Base {
+		A('a',Color.web("#1a9641")),
+		C('c',Color.web("#fdae61")),
+		G('g',Color.web("#d7191c")),
+		T('t',Color.web("#a6d96a"));
 
 		private char baseChar;
 		private Color color;
@@ -36,11 +36,14 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 			else if(c=='c') return Base.C;
 			else if(c=='g') return Base.G;
 			else if(c=='t') return Base.T;
-			else throw new IllegalArgumentException();
+			else {
+				System.out.println(c);
+				throw new IllegalArgumentException();
+			}
 		}
 	} 
 
-	private List<Base> sequence;
+	private List<Base> sequence = new ArrayList<Base>();
 
 	/**
 	 * Creates a new Sequence object with the specified sequence.
@@ -52,6 +55,10 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 	
 	private Sequence (List<Base> sequence) {
 		this.sequence = sequence;
+	}
+	
+	private Sequence() {
+		
 	}
 	
 	/**
@@ -76,12 +83,16 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 		int nFrag = sequence.size()/uniqueLength;
 		int lastFragLength = sequence.size()%uniqueLength;
 		if (lastFragLength!=0) {nFrag++;} //cut a extra fragment that contains the rest of the target sequence, even if it's smaller than uniqueLength
-		int[] overlappingLengths = Tools.randomIntegers((nFrag)*2, 0, maxOverlapping);
+		int[] overlappingLengths = Tools.genRandomIntegers((nFrag)*2, 0, maxOverlapping);
 
-		String preZeroSeq = generator(maxOverlapping).toString();
-		String postEndSeq = generator(uniqueLength-lastFragLength+maxOverlapping).toString();
-		String extendedSeq = preZeroSeq+sequence+postEndSeq;
-		int targetSeqStart = preZeroSeq.length();
+		Sequence preZeroSeq = generator(maxOverlapping);
+		Sequence postEndSeq = generator(uniqueLength-lastFragLength+maxOverlapping);
+		Sequence extendedSeq = new Sequence();
+		extendedSeq.addAll(preZeroSeq);
+		extendedSeq.addAll(this);
+		extendedSeq.addAll(postEndSeq);
+		
+		int targetSeqStart = preZeroSeq.size();
 		List<Sequence> frags = new ArrayList<Sequence>();
 
 		for(int i=0,l=0;i<nFrag;i++,l+=2) {
@@ -89,8 +100,8 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 			int endIndex = startIndex+uniqueLength;
 			int overlappingStartIndex = startIndex - overlappingLengths[l];
 			int overlappingEndIndex = endIndex + overlappingLengths[l+1];
-			String fragment = extendedSeq.substring(overlappingStartIndex, overlappingEndIndex);
-			frags.add(new Sequence(fragment));
+			Sequence fragment = new Sequence(extendedSeq.subList(overlappingStartIndex, overlappingEndIndex));
+			frags.add(fragment);
 		}
 
 		return frags;
@@ -102,7 +113,7 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 	}
 	
 	private static List<Base> stringToSequence (String sequence){
-		char[] chars = sequence.toCharArray();
+		char[] chars = sequence.trim().toCharArray();
 		List<Base> bases = new ArrayList<Base>();
 		for (char c : chars) {
 			bases.add(Base.toBase(c));

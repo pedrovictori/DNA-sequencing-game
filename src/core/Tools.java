@@ -9,7 +9,7 @@ public class Tools {
 		throw new AssertionError("Shouldn't instantiate this utility class");
 	}
 	
-	public int[] genRandomIntegers(int n, int min, int max){
+	public static int[] genRandomIntegers(int n, int min, int max){
 	   	int[] numbers = new int[n];
 
 	    for (int i = 0; i < n; i++)

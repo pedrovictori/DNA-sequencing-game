@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import core.Sequence.Base;
+import javafx.collections.ModifiableObservableListBase;
 import javafx.scene.paint.Color;
 
-public class Sequence{
+public class Sequence extends ModifiableObservableListBase<Base>{
 	enum Base {
 		A('a',Color.DEEPSKYBLUE),
 		C('c',Color.RED),
@@ -115,5 +117,31 @@ public class Sequence{
 			string += base.getChar();
 		}
 		return string;
+	}
+
+	@Override
+	protected void doAdd(int index, Base element) {
+		sequence.add(index, element);
+		
+	}
+
+	@Override
+	protected Base doRemove(int index) {
+		return sequence.remove(index);
+	}
+
+	@Override
+	protected Base doSet(int index, Base element) {
+		return sequence.set(index, element);
+	}
+
+	@Override
+	public Base get(int index) {
+		return sequence.get(index);
+	}
+
+	@Override
+	public int size() {
+		return sequence.size();
 	}
 }

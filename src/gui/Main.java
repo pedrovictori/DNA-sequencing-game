@@ -43,12 +43,12 @@ public class Main extends Application{
         
         for (int i = 0; i < frags.size(); i++) {
 			double yPos = sqSize*(2*i+3);
-			Sequence sequence = frags.get(i);
+			Sequence fragment = frags.get(i);
 			
-			for (int j = 0; j < sequence.size(); j++) {
+			for (int j = 0; j < fragment.size(); j++) {
 				double xPos = sqSize*(j+1);
 				Rectangle rectangle = new Rectangle(xPos, yPos, sqSize, sqSize); //xpos, ypos, width, height
-	        	rectangle.setFill(seq.get(j).getColor());
+	        	rectangle.setFill(fragment.get(j).getColor());
 	        	fragDrawing.add(rectangle);
 			}
 		}

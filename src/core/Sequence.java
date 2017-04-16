@@ -75,8 +75,9 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 		}
 
 		Collections.shuffle(list); //shuffle the sequence
-
-		return new Sequence(list);
+		Sequence generated = new Sequence(list);
+		System.out.println(generated.toString());//testing
+		return generated;
 	}
 
 	public List<Sequence> generateFixedSizedFragments(int uniqueLength, int maxOverlapping){
@@ -101,6 +102,7 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 			int overlappingStartIndex = startIndex - overlappingLengths[l];
 			int overlappingEndIndex = endIndex + overlappingLengths[l+1];
 			Sequence fragment = new Sequence(extendedSeq.subList(overlappingStartIndex, overlappingEndIndex));
+			System.out.println(fragment.toString());//testing
 			frags.add(fragment);
 		}
 

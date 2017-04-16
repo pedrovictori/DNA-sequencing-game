@@ -29,6 +29,7 @@ import javafx.stage.Stage;
 public class Main extends Application{
 	double sqSize = 10;
 	int maxOverlap = 5;
+	int minOverlap = 1;
 	int mouldSize = 100;
 	int uniqueFragmentSize = 30;
 	double orgSceneX, orgSceneY;
@@ -55,7 +56,7 @@ public class Main extends Application{
 
 		//generate sequences
 		Sequence seq = Sequence.generator(mouldSize);
-		List<Sequence> frags = seq.generateFixedSizedFragments(uniqueFragmentSize, maxOverlap);
+		List<Sequence> frags = seq.generateFixedSizedFragments(uniqueFragmentSize,minOverlap, maxOverlap);
 		Collections.shuffle(frags); //shuffle the order of the fragments to add a bit of difficulty
 
 		//draw mould sequence

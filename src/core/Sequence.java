@@ -80,11 +80,11 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 		return generated;
 	}
 
-	public List<Sequence> generateFixedSizedFragments(int uniqueLength, int maxOverlapping){
+	public List<Sequence> generateFixedSizedFragments(int uniqueLength, int minOverlapping, int maxOverlapping){
 		int nFrag = sequence.size()/uniqueLength;
 		int lastFragLength = sequence.size()%uniqueLength;
 		if (lastFragLength!=0) {nFrag++;} //cut a extra fragment that contains the rest of the target sequence, even if it's smaller than uniqueLength
-		int[] overlappingLengths = Tools.genRandomIntegers((nFrag)*2, 0, maxOverlapping);
+		int[] overlappingLengths = Tools.genRandomIntegers((nFrag)*2, minOverlapping, maxOverlapping);
 
 		Sequence preZeroSeq = generator(maxOverlapping);
 		Sequence postEndSeq = generator(uniqueLength-lastFragLength+maxOverlapping);

@@ -1,9 +1,11 @@
 package gui;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
 import core.Sequence;
+import core.Sequence.Base;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -12,10 +14,16 @@ import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class Main extends Application{
@@ -27,6 +35,8 @@ public class Main extends Application{
 	double orgTranslateX, orgTranslateY;
 	String showButtonText = "Show mould sequence";
 	String hideButtonText = "Hide mould sequence";
+	File showIcon = new File("./src/res/show.png");
+	File hideIcon = new File("./src/res/hide.png");
 
 	public static void main(String[] args) {
 
@@ -41,6 +51,7 @@ public class Main extends Application{
 		VBox sequencesBox = new VBox(sqSize); //use sqSize as spacing value between children
 		sequencesBox.setPadding(new Insets(20,sqSize*uniqueFragmentSize,20,sqSize*uniqueFragmentSize)); //leave plenty of space right and left
 		root.setPadding(new Insets(20));
+		DropShadow highlight = new DropShadow(sqSize, Color.BLACK);
 
 		//generate sequences
 		Sequence seq = Sequence.generator(mouldSize);
@@ -58,6 +69,7 @@ public class Main extends Application{
 		}
 
 		sequencesBox.getChildren().add(mould);
+		mould.setVisible(false); //start hidden
 
 		//draw fragments
 		for (int i = 0; i < frags.size(); i++) {
@@ -70,7 +82,8 @@ public class Main extends Application{
 				rectangle.setFill(fragment.get(j).getColor());
 				fragmentDrawing.getChildren().add(rectangle);
 			}
-
+			
+			fragmentDrawing.setEffect(highlight);
 			fragmentDrawing.setCursor(Cursor.MOVE);
 			fragmentDrawing.setOnMousePressed(groupOnMousePressedEventHandler);
 			fragmentDrawing.setOnMouseDragged(groupOnMouseDraggedEventHandler);
@@ -78,27 +91,48 @@ public class Main extends Application{
 		}
 
 		//add button to hide mould
-		Button bShow = new Button(showButtonText);
+		ImageView ivShow = new ImageView(new Image(showIcon.toURI().toString(), 30, 30, true, true));		
+		ImageView ivHide = new ImageView(new Image(hideIcon.toURI().toString(), 30, 30, true, true));
+		
+		Button bShow = new Button(null,ivShow); //no text, just the icon
+		
 		bShow.setOnAction(new EventHandler<ActionEvent>(){
 			@Override public void handle(ActionEvent e) {
 				boolean isVisible = mould.isVisible();
 				if (isVisible) { //hide it and give option to show again
 					mould.setVisible(false);
-					bShow.setText(showButtonText);
+					bShow.setGraphic(ivShow);
 				}
 				else { //show it and give option to hide it again
 					mould.setVisible(true);
-					bShow.setText(hideButtonText);
+					bShow.setGraphic(ivHide);
 				}
 			}
-
-
 		});
 		
+		//create legend
+		GridPane legend = new GridPane();
+		legend.setHgap(10);
+	    legend.setVgap(10);
+	    Base[] bases = Base.values();
+	    
+	    for (int i = 0; i < bases.length; i++) {
+			Text text = new Text(String.valueOf(bases[i].getChar()));
+			Rectangle rectangle = new Rectangle(sqSize, sqSize);
+			rectangle.setFill(bases[i].getColor());
+			legend.add(text, 0, i);
+			legend.add(rectangle, 1, i);			
+		}
+	    
 		//adding everything to view
-		root.getChildren().addAll(sequencesBox,bShow);
+	    VBox rightColumn = new VBox(10.);
+	    rightColumn.getChildren().add(bShow);
+	    rightColumn.getChildren().add(legend);
+	    rightColumn.setPadding(new Insets(20));
+		
+	    root.getChildren().addAll(sequencesBox,rightColumn);
 		AnchorPane.setTopAnchor(sequencesBox, sqSize); //use sqSize as offset from the top
-		AnchorPane.setRightAnchor(bShow, 20.0);
+		AnchorPane.setRightAnchor(rightColumn, 20.0);
 
 		primaryStage.setScene(new Scene(root));
 		primaryStage.sizeToScene();

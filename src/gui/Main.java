@@ -12,6 +12,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
@@ -31,9 +32,15 @@ public class Main extends Application{
 
 	@Override
 	public void start(Stage primaryStage) {
+		//gui settings
 		AnchorPane root = new AnchorPane();
-		root.setPadding(new Insets(20, 0, 20, 0));
-
+		VBox sequencesBox = new VBox(sqSize); //use sqSize as spacing value between children
+		sequencesBox.setPadding(new Insets(20,sqSize*uniqueFragmentSize,20,sqSize*uniqueFragmentSize)); //leave plenty of space right and left
+		root.getChildren().add(sequencesBox);
+		AnchorPane.setTopAnchor(sequencesBox, sqSize); //use sqSize as offset from the top
+		root.setPadding(new Insets(20));
+		
+		//generate sequences
 		Sequence seq = Sequence.generator(mouldSize);
 		List<Sequence> frags = seq.generateFixedSizedFragments(uniqueFragmentSize, maxOverlap);
 		Collections.shuffle(frags); //shuffle the order of the fragments to add a bit of difficulty
@@ -43,22 +50,21 @@ public class Main extends Application{
 
 		for (int i = 0; i < seq.size(); i++) {
 			double xPos = sqSize*(i+uniqueFragmentSize);
-			Rectangle rectangle = new Rectangle(xPos, sqSize, sqSize, sqSize); //xpos, ypos, width, height
+			Rectangle rectangle = new Rectangle(xPos, 0, sqSize, sqSize); //xpos, ypos, width, height
 			rectangle.setFill(seq.get(i).getColor());
 			mould.getChildren().add(rectangle);
 		}
 
-		root.getChildren().add(mould);
+		sequencesBox.getChildren().add(mould);
 
 		//draw fragments
 		for (int i = 0; i < frags.size(); i++) {
-			double yPos = sqSize*(2*i+3);
 			Sequence fragment = frags.get(i);
 			Group fragmentDrawing = new Group();
 
 			for (int j = 0; j < fragment.size(); j++) {
 				double xPos = sqSize*(j+1);
-				Rectangle rectangle = new Rectangle(xPos, yPos, sqSize, sqSize); //xpos, ypos, width, height
+				Rectangle rectangle = new Rectangle(xPos, 0, sqSize, sqSize); //xpos, ypos, width, height
 				rectangle.setFill(fragment.get(j).getColor());
 				fragmentDrawing.getChildren().add(rectangle);
 			}
@@ -66,12 +72,11 @@ public class Main extends Application{
 			fragmentDrawing.setCursor(Cursor.MOVE);
 			fragmentDrawing.setOnMousePressed(groupOnMousePressedEventHandler);
 			fragmentDrawing.setOnMouseDragged(groupOnMouseDraggedEventHandler);
-			root.getChildren().add(fragmentDrawing);
+			sequencesBox.getChildren().add(fragmentDrawing);
 		}
 		
 		primaryStage.setScene(new Scene(root));
 		primaryStage.sizeToScene();
-		primaryStage.setMinWidth(sqSize*(mouldSize+2*uniqueFragmentSize)); //let enough space left and right of the mould sequence
 		primaryStage.show();
 	}
 	

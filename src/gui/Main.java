@@ -5,11 +5,13 @@ import java.util.List;
 
 import core.Sequence;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
@@ -22,7 +24,9 @@ public class Main extends Application{
 	int mouldSize = 100;
 	int uniqueFragmentSize = 30;
 	double orgSceneX, orgSceneY;
-    double orgTranslateX, orgTranslateY;
+	double orgTranslateX, orgTranslateY;
+	String showButtonText = "Show mould sequence";
+	String hideButtonText = "Hide mould sequence";
 
 	public static void main(String[] args) {
 
@@ -36,10 +40,8 @@ public class Main extends Application{
 		AnchorPane root = new AnchorPane();
 		VBox sequencesBox = new VBox(sqSize); //use sqSize as spacing value between children
 		sequencesBox.setPadding(new Insets(20,sqSize*uniqueFragmentSize,20,sqSize*uniqueFragmentSize)); //leave plenty of space right and left
-		root.getChildren().add(sequencesBox);
-		AnchorPane.setTopAnchor(sequencesBox, sqSize); //use sqSize as offset from the top
 		root.setPadding(new Insets(20));
-		
+
 		//generate sequences
 		Sequence seq = Sequence.generator(mouldSize);
 		List<Sequence> frags = seq.generateFixedSizedFragments(uniqueFragmentSize, maxOverlap);
@@ -74,36 +76,59 @@ public class Main extends Application{
 			fragmentDrawing.setOnMouseDragged(groupOnMouseDraggedEventHandler);
 			sequencesBox.getChildren().add(fragmentDrawing);
 		}
+
+		//add button to hide mould
+		Button bShow = new Button(showButtonText);
+		bShow.setOnAction(new EventHandler<ActionEvent>(){
+			@Override public void handle(ActionEvent e) {
+				boolean isVisible = mould.isVisible();
+				if (isVisible) { //hide it and give option to show again
+					mould.setVisible(false);
+					bShow.setText(showButtonText);
+				}
+				else { //show it and give option to hide it again
+					mould.setVisible(true);
+					bShow.setText(hideButtonText);
+				}
+			}
+
+
+		});
 		
+		//adding everything to view
+		root.getChildren().addAll(sequencesBox,bShow);
+		AnchorPane.setTopAnchor(sequencesBox, sqSize); //use sqSize as offset from the top
+		AnchorPane.setRightAnchor(bShow, 20.0);
+
 		primaryStage.setScene(new Scene(root));
 		primaryStage.sizeToScene();
 		primaryStage.show();
 	}
-	
-	 EventHandler<MouseEvent> groupOnMousePressedEventHandler = 
-		        new EventHandler<MouseEvent>() {
-		 
-		        @Override
-		        public void handle(MouseEvent t) {
-		            orgSceneX = t.getSceneX();
-		            orgSceneY = t.getSceneY();
-		            orgTranslateX = ((Group)(t.getSource())).getTranslateX();
-		            orgTranslateY = ((Group)(t.getSource())).getTranslateY();
-		        }
-		    };
-		     
-		    EventHandler<MouseEvent> groupOnMouseDraggedEventHandler = 
-		        new EventHandler<MouseEvent>() {
-		 
-		        @Override
-		        public void handle(MouseEvent t) {
-		            double offsetX = t.getSceneX() - orgSceneX;
-		            double offsetY = t.getSceneY() - orgSceneY;
-		            double newTranslateX = orgTranslateX + offsetX;
-		            double newTranslateY = orgTranslateY + offsetY;
-		             
-		            ((Group)(t.getSource())).setTranslateX(newTranslateX);
-		            ((Group)(t.getSource())).setTranslateY(newTranslateY);
-		        }
-		    };
+
+	EventHandler<MouseEvent> groupOnMousePressedEventHandler = 
+			new EventHandler<MouseEvent>() {
+
+		@Override
+		public void handle(MouseEvent t) {
+			orgSceneX = t.getSceneX();
+			orgSceneY = t.getSceneY();
+			orgTranslateX = ((Group)(t.getSource())).getTranslateX();
+			orgTranslateY = ((Group)(t.getSource())).getTranslateY();
+		}
+	};
+
+	EventHandler<MouseEvent> groupOnMouseDraggedEventHandler = 
+			new EventHandler<MouseEvent>() {
+
+		@Override
+		public void handle(MouseEvent t) {
+			double offsetX = t.getSceneX() - orgSceneX;
+			double offsetY = t.getSceneY() - orgSceneY;
+			double newTranslateX = orgTranslateX + offsetX;
+			double newTranslateY = orgTranslateY + offsetY;
+
+			((Group)(t.getSource())).setTranslateX(newTranslateX);
+			((Group)(t.getSource())).setTranslateY(newTranslateY);
+		}
+	};
 }

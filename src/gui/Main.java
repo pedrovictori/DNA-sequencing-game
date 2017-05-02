@@ -1,6 +1,5 @@
 package gui;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,8 +35,6 @@ public class Main extends Application{
 	double orgTranslateX, orgTranslateY;
 	String showButtonText = "Show mould sequence";
 	String hideButtonText = "Hide mould sequence";
-	File showIcon = new File("./src/res/show.png");
-	File hideIcon = new File("./src/res/hide.png");
 
 	public static void main(String[] args) {
 
@@ -92,8 +89,8 @@ public class Main extends Application{
 		}
 
 		//add button to hide mould
-		ImageView ivShow = new ImageView(new Image(showIcon.toURI().toString(), 30, 30, true, true));		
-		ImageView ivHide = new ImageView(new Image(hideIcon.toURI().toString(), 30, 30, true, true));
+		ImageView ivShow = new ImageView(new Image("/res/show.png", 30, 30, true, true));		
+		ImageView ivHide = new ImageView(new Image("/res/hide.png", 30, 30, true, true));
 		
 		Button bShow = new Button(null,ivShow); //no text, just the icon
 		

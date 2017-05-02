@@ -9,6 +9,9 @@ import javafx.collections.ModifiableObservableListBase;
 import javafx.scene.paint.Color;
 
 public class Sequence extends ModifiableObservableListBase<Base>{
+	/**
+	 * This enumeration is used to hold the char and color asociated with each base, and to provide methods to convert a char to base and vice versa.
+	 */
 	public enum Base {
 		A('a',Color.web("#1a9641")),
 		C('c',Color.web("#fdae61")),
@@ -31,6 +34,12 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 			return color;
 		}
 		
+		/**
+		 * Static method that tries to convert a given char into the assigned base.
+		 * @throws IllegalArgumentException if the given char is not a, c, g or t.
+		 * @param c the char to be converted to a Base.
+		 * @return the corresponding member of the enum Base.
+		 */
 		static Base toBase(char c) {
 			if(c=='a') return Base.A;
 			else if(c=='c') return Base.C;
@@ -47,7 +56,7 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 
 	/**
 	 * Creates a new Sequence object with the specified sequence.
-	 * @param sequence
+	 * @param seqStr a String representing the desired sequence.
 	 */
 	public Sequence(String seqStr) {
 		sequence =  stringToSequence(seqStr);
@@ -62,8 +71,9 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 	}
 	
 	/**
-	 * Creates a new Sequence object with a random sequence of the specified length
-	 * @param length
+	 * Creates a new Sequence object with a random sequence of the specified length.
+	 * @param length the number of bases in the new sequence.
+	 * @return the generated Sequence instance.
 	 */
 	public static Sequence generator(int length) {
 		List<Base> list = new ArrayList<Base>();
@@ -79,7 +89,15 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 		System.out.println(generated.toString());//testing
 		return generated;
 	}
-
+	
+	/**
+	 * Breaks down the sequence into fixed sized fragments, plus start and end sequences that overlap with the previous and next fragments.
+	 * These overlapping parts are of a variable length, which is determined at random within a given range.
+	 * @param uniqueLength the length in number of bases of the sequence region which is unique to each fragment. Every fragment has the same unique region length.
+	 * @param minOverlapping the overlapping region's minimum length.
+	 * @param maxOverlapping the overlapping region's maximum length.
+	 * @return a List of Sequence, every member of the list is a fragment that includes the unique region and the two overlapping regions.
+	 */
 	public List<Sequence> generateFixedSizedFragments(int uniqueLength, int minOverlapping, int maxOverlapping){
 		int nFrag = sequence.size()/uniqueLength;
 		int lastFragLength = sequence.size()%uniqueLength;
@@ -109,6 +127,9 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 		return frags;
 	}
 	
+	/**
+	 * Applies the sequenceToString method to this instance.
+	 */
 	@Override
 	public String toString() {
 		return sequenceToString(this);
@@ -124,6 +145,11 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 		return bases;
 	}
 	
+	/**
+	 * Exports a given Sequence as a String, each base represented by its assigned char.
+	 * @param seq the Sequence instance to export.
+	 * @return a String representation of the Sequence.
+	 */
 	public static String sequenceToString (Sequence seq) {
 		String string = "";
 		for (Base base : seq) {

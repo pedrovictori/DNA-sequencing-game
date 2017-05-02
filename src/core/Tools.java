@@ -9,6 +9,13 @@ public class Tools {
 		throw new AssertionError("Shouldn't instantiate this utility class");
 	}
 	
+	/**
+	 * Returns an array of non unique random integers in a given range.
+	 * @param n the number of random integers to return.
+	 * @param min the lower limit of the range, inclusive.
+	 * @param max the upper limit of the range, inclusive.
+	 * @return an int array with the specified number of random integers.
+	 */
 	public static int[] genRandomIntegers(int n, int min, int max){
 	   	int[] numbers = new int[n];
 

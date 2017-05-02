@@ -111,7 +111,7 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 	
 	@Override
 	public String toString() {
-		return sequenceToString(sequence);
+		return sequenceToString(this);
 	}
 	
 	private static List<Base> stringToSequence (String sequence){
@@ -124,7 +124,7 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 		return bases;
 	}
 	
-	public static String sequenceToString (List<Base> seq) {
+	public static String sequenceToString (Sequence seq) {
 		String string = "";
 		for (Base base : seq) {
 			string += base.getChar();

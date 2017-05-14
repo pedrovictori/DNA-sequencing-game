@@ -37,8 +37,6 @@ public class Main extends Application{
 	String hideButtonText = "Hide mould sequence";
 
 	public static void main(String[] args) {
-
-
 		launch(args);
 	}
 
@@ -62,7 +60,7 @@ public class Main extends Application{
 		for (int i = 0; i < seq.size(); i++) {
 			double xPos = sqSize*(i+uniqueFragmentSize);
 			Rectangle rectangle = new Rectangle(xPos, 0, sqSize, sqSize); //xpos, ypos, width, height
-			rectangle.setFill(seq.get(i).getColor());
+			rectangle.setFill(Color.web(seq.get(i).getColor()));
 			mould.getChildren().add(rectangle);
 		}
 
@@ -77,7 +75,7 @@ public class Main extends Application{
 			for (int j = 0; j < fragment.size(); j++) {
 				double xPos = sqSize*(j+1);
 				Rectangle rectangle = new Rectangle(xPos, 0, sqSize, sqSize); //xpos, ypos, width, height
-				rectangle.setFill(fragment.get(j).getColor());
+				rectangle.setFill(Color.web(fragment.get(j).getColor()));
 				fragmentDrawing.getChildren().add(rectangle);
 			}
 			
@@ -117,7 +115,7 @@ public class Main extends Application{
 	    for (int i = 0; i < bases.length; i++) {
 			Text text = new Text(String.valueOf(bases[i].getChar()));
 			Rectangle rectangle = new Rectangle(sqSize, sqSize);
-			rectangle.setFill(bases[i].getColor());
+			rectangle.setFill(Color.web(bases[i].getColor()));
 			legend.add(text, 0, i);
 			legend.add(rectangle, 1, i);			
 		}

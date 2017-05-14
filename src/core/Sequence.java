@@ -8,22 +8,21 @@ import java.util.List;
 import java.util.ListIterator;
 
 import core.Sequence.Base;
-import javafx.scene.paint.Color;
 
 public class Sequence extends AbstractSequentialList<Base> {
 	/**
 	 * This enumeration is used to hold the char and color asociated with each base, and to provide methods to convert a char to base and vice versa.
 	 */
 	public enum Base {
-		A('a',Color.web("#1a9641")),
-		C('c',Color.web("#fdae61")),
-		G('g',Color.web("#d7191c")),
-		T('t',Color.web("#a6d96a"));
+		A('a',"#1a9641"),
+		C('c',"#fdae61"),
+		G('g',"#d7191c"),
+		T('t',"#a6d96a");
 
 		private char baseChar;
-		private Color color;
+		private String color;
 
-		Base(char baseChar, Color color) {
+		Base(char baseChar, String color) {
 			this.baseChar = baseChar;
 			this.color = color;
 		}
@@ -32,7 +31,7 @@ public class Sequence extends AbstractSequentialList<Base> {
 			return baseChar;
 		}
 		
-		public Color getColor() {
+		public String getColor() {
 			return color;
 		}
 		

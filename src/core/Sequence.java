@@ -1,14 +1,16 @@
 package core;
 
+import java.util.AbstractSequentialList;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 
 import core.Sequence.Base;
-import javafx.collections.ModifiableObservableListBase;
 import javafx.scene.paint.Color;
 
-public class Sequence extends ModifiableObservableListBase<Base>{
+public class Sequence extends AbstractSequentialList<Base> {
 	/**
 	 * This enumeration is used to hold the char and color asociated with each base, and to provide methods to convert a char to base and vice versa.
 	 */
@@ -62,13 +64,18 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 		sequence =  stringToSequence(seqStr);
 	}
 	
-	private Sequence (List<Base> sequence) {
-		this.sequence = sequence;
+	/**
+	 * As per the recommendation in the Collection interface specification.
+	 * @param sequence
+	 */
+	private Sequence (Collection<Base> sequence) {
+		this.sequence.addAll(sequence);
 	}
 	
-	private Sequence() {
-		
-	}
+	/**
+	 * As per the recommendation in the Collection interface specification.
+	 */
+	public Sequence() {}
 	
 	/**
 	 * Creates a new Sequence object with a random sequence of the specified length.
@@ -159,28 +166,26 @@ public class Sequence extends ModifiableObservableListBase<Base>{
 	}
 
 	@Override
-	protected void doAdd(int index, Base element) {
-		sequence.add(index, element);
-		
-	}
-
-	@Override
-	protected Base doRemove(int index) {
-		return sequence.remove(index);
-	}
-
-	@Override
-	protected Base doSet(int index, Base element) {
-		return sequence.set(index, element);
-	}
-
-	@Override
-	public Base get(int index) {
-		return sequence.get(index);
-	}
-
-	@Override
 	public int size() {
 		return sequence.size();
+	}
+
+	@Override
+	public ListIterator<Base> listIterator(int index) {
+		return sequence.listIterator();
+	}
+	
+	@Override
+	public Base set(int index, Base base) {
+		return sequence.set(index, base);
+	}
+	
+	@Override
+	public Base remove(int index) {
+		return sequence.remove(index);
+	}
+	
+	public void add(int index, Base base) {
+		sequence.add(index, base);
 	}
 }

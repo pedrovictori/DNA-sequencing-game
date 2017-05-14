@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import core.Sequence.Base;
+import tools.MathTools;
 
 public class Sequence extends AbstractSequentialList<Base> {
 	/**
@@ -108,7 +109,7 @@ public class Sequence extends AbstractSequentialList<Base> {
 		int nFrag = sequence.size()/uniqueLength;
 		int lastFragLength = sequence.size()%uniqueLength;
 		if (lastFragLength!=0) {nFrag++;} //cut a extra fragment that contains the rest of the target sequence, even if it's smaller than uniqueLength
-		int[] overlappingLengths = tools.MathTools.genRandomIntegers((nFrag)*2, minOverlapping, maxOverlapping);
+		int[] overlappingLengths = MathTools.genRandomIntegers((nFrag)*2, minOverlapping, maxOverlapping);
 
 		Sequence preZeroSeq = generator(maxOverlapping);
 		Sequence postEndSeq = generator(uniqueLength-lastFragLength+maxOverlapping);

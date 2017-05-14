@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import core.Sequence.Base;
-import tools.MathTools;
+import toolbox.tools.MathTools;
 
 public class Sequence extends AbstractSequentialList<Base> {
 	/**

@@ -1,16 +1,15 @@
 package core;
 
-import java.util.AbstractSequentialList;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.ListIterator;
 
 import core.Sequence.Base;
 import toolbox.tools.MathTools;
 
-public class Sequence extends AbstractSequentialList<Base> {
+public class Sequence extends AbstractList<Base> {
 	/**
 	 * This enumeration is used to hold the char and color asociated with each base, and to provide methods to convert a char to base and vice versa.
 	 */
@@ -169,11 +168,6 @@ public class Sequence extends AbstractSequentialList<Base> {
 	public int size() {
 		return sequence.size();
 	}
-
-	@Override
-	public ListIterator<Base> listIterator(int index) {
-		return sequence.listIterator();
-	}
 	
 	@Override
 	public Base set(int index, Base base) {
@@ -187,5 +181,10 @@ public class Sequence extends AbstractSequentialList<Base> {
 	
 	public void add(int index, Base base) {
 		sequence.add(index, base);
+	}
+
+	@Override
+	public Base get(int index) {
+		return sequence.get(index);
 	}
 }

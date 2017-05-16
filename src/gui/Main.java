@@ -27,7 +27,6 @@ import javafx.stage.Stage;
 
 public class Main extends Application{
 	double sqSize = 10;
-	double startX;
 	int maxOverlap = 5;
 	int minOverlap = 1;
 	int mouldSize = 100;
@@ -59,8 +58,8 @@ public class Main extends Application{
 		Group mould = new Group();
 
 		for (int i = 0; i < seq.size(); i++) {
-			startX = sqSize*(i+uniqueFragmentSize);
-			Rectangle rectangle = new Rectangle(startX, 0, sqSize, sqSize); //xpos, ypos, width, height
+			double xPos = sqSize*(i+uniqueFragmentSize);
+			Rectangle rectangle = new Rectangle(xPos, 0, sqSize, sqSize); //xpos, ypos, width, height
 			rectangle.setFill(Color.web(seq.get(i).getColor()));
 			mould.getChildren().add(rectangle);
 		}

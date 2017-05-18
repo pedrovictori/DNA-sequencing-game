@@ -1,5 +1,6 @@
 package gui;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.effect.DropShadow;
@@ -35,6 +37,7 @@ public class Main extends Application{
 	double orgTranslateX, orgTranslateY;
 	String showButtonText = "Show mould sequence";
 	String hideButtonText = "Hide mould sequence";
+	VBox fragmentVBox;
 
 	public static void main(String[] args) {
 		launch(args);
@@ -44,8 +47,9 @@ public class Main extends Application{
 	public void start(Stage primaryStage) {
 		//gui settings
 		AnchorPane root = new AnchorPane();
-		VBox sequencesBox = new VBox(sqSize); //use sqSize as spacing value between children
-		sequencesBox.setPadding(new Insets(20,sqSize*uniqueFragmentSize,20,sqSize*uniqueFragmentSize)); //leave plenty of space right and left
+		VBox mainVBox = new VBox(sqSize);
+		fragmentVBox = new VBox(sqSize); //use sqSize as spacing value between children
+		mainVBox.setPadding(new Insets(20,sqSize*uniqueFragmentSize,20,sqSize*uniqueFragmentSize)); //leave plenty of space right and left
 		root.setPadding(new Insets(20));
 		DropShadow highlight = new DropShadow(sqSize, Color.BLACK);
 
@@ -64,7 +68,7 @@ public class Main extends Application{
 			mould.getChildren().add(rectangle);
 		}
 
-		sequencesBox.getChildren().add(mould);
+		mainVBox.getChildren().add(mould);
 		mould.setVisible(false); //start hidden
 
 		//draw fragments
@@ -78,20 +82,27 @@ public class Main extends Application{
 				rectangle.setFill(Color.web(fragment.get(j).getColor()));
 				fragmentDrawing.getChildren().add(rectangle);
 			}
-			
+
+			//testing
+			Text text = new Text(Integer.toString(i));
+			fragmentDrawing.getChildren().add(text);
+
 			fragmentDrawing.setEffect(highlight);
 			fragmentDrawing.setCursor(Cursor.MOVE);
 			fragmentDrawing.setOnMousePressed(groupOnMousePressedEventHandler);
 			fragmentDrawing.setOnMouseDragged(groupOnMouseDraggedEventHandler);
-			sequencesBox.getChildren().add(fragmentDrawing);
+			fragmentDrawing.setOnMouseReleased(groupOnMouseRelesedEventHandler);
+			fragmentVBox.getChildren().add(fragmentDrawing);
 		}
+
+		mainVBox.getChildren().add(fragmentVBox);
 
 		//add button to hide mould
 		ImageView ivShow = new ImageView(new Image("/res/show.png", 30, 30, true, true));		
 		ImageView ivHide = new ImageView(new Image("/res/hide.png", 30, 30, true, true));
-		
+
 		Button bShow = new Button(null,ivShow); //no text, just the icon
-		
+
 		bShow.setOnAction(new EventHandler<ActionEvent>(){
 			@Override public void handle(ActionEvent e) {
 				boolean isVisible = mould.isVisible();
@@ -105,29 +116,29 @@ public class Main extends Application{
 				}
 			}
 		});
-		
+
 		//create legend
 		GridPane legend = new GridPane();
 		legend.setHgap(10);
-	    legend.setVgap(10);
-	    Base[] bases = Base.values();
-	    
-	    for (int i = 0; i < bases.length; i++) {
+		legend.setVgap(10);
+		Base[] bases = Base.values();
+
+		for (int i = 0; i < bases.length; i++) {
 			Text text = new Text(String.valueOf(bases[i].getChar()));
 			Rectangle rectangle = new Rectangle(sqSize, sqSize);
 			rectangle.setFill(Color.web(bases[i].getColor()));
 			legend.add(text, 0, i);
 			legend.add(rectangle, 1, i);			
 		}
-	    
+
 		//adding everything to view
-	    VBox rightColumn = new VBox(10.);
-	    rightColumn.getChildren().add(bShow);
-	    rightColumn.getChildren().add(legend);
-	    rightColumn.setPadding(new Insets(20));
-		
-	    root.getChildren().addAll(sequencesBox,rightColumn);
-		AnchorPane.setTopAnchor(sequencesBox, sqSize); //use sqSize as offset from the top
+		VBox rightColumn = new VBox(10.);
+		rightColumn.getChildren().add(bShow);
+		rightColumn.getChildren().add(legend);
+		rightColumn.setPadding(new Insets(20));
+
+		root.getChildren().addAll(mainVBox,rightColumn);
+		AnchorPane.setTopAnchor(mainVBox, sqSize); //use sqSize as offset from the top
 		AnchorPane.setRightAnchor(rightColumn, 20.0);
 
 		primaryStage.setScene(new Scene(root));
@@ -153,14 +164,37 @@ public class Main extends Application{
 		@Override
 		public void handle(MouseEvent t) {
 			double offsetX = t.getSceneX() - orgSceneX;
-			double offsetY = t.getSceneY() - orgSceneY;
 			double newTranslateX = orgTranslateX + offsetX;
-			double newTranslateY = orgTranslateY + offsetY;
-			
+
 			double nSq = Math.round((newTranslateX)/sqSize);
 			newTranslateX = sqSize*nSq;
 			((Group)(t.getSource())).setTranslateX(newTranslateX);
-			//((Group)(t.getSource())).setTranslateY(newTranslateY);
+		}
+	};
+
+	EventHandler<MouseEvent> groupOnMouseRelesedEventHandler =
+			new EventHandler<MouseEvent>() {
+
+		@Override
+		public void handle(MouseEvent t) {
+			double offsetY = t.getSceneY() - orgSceneY;
+			double newTranslateY = orgTranslateY + offsetY;
+
+			int nRows = (int) Math.round(newTranslateY/(sqSize*4));
+			int currentIndex = fragmentVBox.getChildren().indexOf((Group) t.getSource());
+			int newIndex = currentIndex+nRows;
+			int size = fragmentVBox.getChildren().size();
+			if(Math.abs(nRows) >= 1) {
+				if(newIndex<0) newIndex = 0;
+				else if(newIndex >= size) newIndex = size - 1;
+
+				List<Node> fragments = new ArrayList<Node>(fragmentVBox.getChildren());
+				fragmentVBox.getChildren().clear();
+				fragments.add(newIndex, fragments.remove(currentIndex));
+
+				fragmentVBox.getChildren().addAll(fragments);
+
+			}
 		}
 	};
 }

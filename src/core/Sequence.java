@@ -95,16 +95,30 @@ public class Sequence extends AbstractList<Base> {
 		System.out.println(generated.toString());//testing
 		return generated;
 	}
-	
+
+	public List<Sequence> generateFixedSizedReads(int length, int poolSize){
+		List<Sequence> reads = new ArrayList<Sequence>();
+		int[] indexes = MathTools.genRandomUniqueIntegers(poolSize, 0, sequence.size()-length-1);
+
+		for(int i=0;i<poolSize;i++){
+			/* we could simply add a cast to Sequence, since Sequence itself is a subclass of List, 
+			 * but this way we create a new object, independent from the mould */
+			Sequence read = new Sequence(this.subList(indexes[i], indexes[i]+length));
+			reads.add(read);
+		}
+
+		return reads;
+	}
+
 	/**
-	 * Breaks down the sequence into fixed sized fragments, plus start and end sequences that overlap with the previous and next fragments.
+	 * Breaks down the sequence into fixed sized reads, plus start and end sequences that overlap with the previous and next read.
 	 * These overlapping parts are of a variable length, which is determined at random within a given range.
-	 * @param uniqueLength the length in number of bases of the sequence region which is unique to each fragment. Every fragment has the same unique region length.
+	 * @param uniqueLength the length in number of bases of the sequence region which is unique to each read. Every read has the same unique region length.
 	 * @param minOverlapping the overlapping region's minimum length.
 	 * @param maxOverlapping the overlapping region's maximum length.
-	 * @return a List of Sequence, every member of the list is a fragment that includes the unique region and the two overlapping regions.
+	 * @return a List of Sequence, every member of the list is a read that includes the unique region and the two overlapping regions.
 	 */
-	public List<Sequence> generateFixedSizedFragments(int uniqueLength, int minOverlapping, int maxOverlapping){
+	public List<Sequence> generateFixedSizedOverlappingReads(int uniqueLength, int minOverlapping, int maxOverlapping){
 		int nFrag = sequence.size()/uniqueLength;
 		int lastFragLength = sequence.size()%uniqueLength;
 		if (lastFragLength!=0) {nFrag++;} //cut a extra fragment that contains the rest of the target sequence, even if it's smaller than uniqueLength
@@ -116,9 +130,9 @@ public class Sequence extends AbstractList<Base> {
 		extendedSeq.addAll(preZeroSeq);
 		extendedSeq.addAll(this);
 		extendedSeq.addAll(postEndSeq);
-		
+
 		int targetSeqStart = preZeroSeq.size();
-		List<Sequence> frags = new ArrayList<Sequence>();
+		List<Sequence> reads = new ArrayList<Sequence>();
 
 		for(int i=0,l=0;i<nFrag;i++,l+=2) {
 			int startIndex = i*uniqueLength+targetSeqStart; //start the unique sequence fragment (without the overlapping parts) at 0 in the original sequence, 0+targetSeqStart in the extended sequence, which allows for extension of the first and last fragments
@@ -127,12 +141,22 @@ public class Sequence extends AbstractList<Base> {
 			int overlappingEndIndex = endIndex + overlappingLengths[l+1];
 			Sequence fragment = new Sequence(extendedSeq.subList(overlappingStartIndex, overlappingEndIndex));
 			System.out.println(fragment.toString());//testing
-			frags.add(fragment);
+			reads.add(fragment);
 		}
 
-		return frags;
+		return reads;
 	}
-	
+
+	public void introduceError(int percentage){
+		List<Base> 
+		int nBasesToChange = sequence.size()*percentage/100; 
+		int[] errorIndexes = MathTools.genRandomUniqueIntegers(nBasesToChange, 0, sequence.size()-1);
+
+		for(int i = 0; i<nBasesToChange; i++){
+
+		}
+	}
+
 	/**
 	 * Applies the sequenceToString method to this instance.
 	 */

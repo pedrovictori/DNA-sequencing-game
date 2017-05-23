@@ -72,8 +72,8 @@
 				<Label text="Reads pool size" GridPane.rowIndex="3" />
 				<Label text="Reads length (fixed)" GridPane.rowIndex="4" />
 				<Label text="Error rate(%)" GridPane.rowIndex="5" />
-            <LabelledSlider fx:id="lsTargetLength" majorTickUnit="5.0" max="300.0" min="25.0" snapToTicks="true" value="100.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <LabelledSlider fx:id="lsReadSize" max="100.0" min="1.0" snapToTicks="true" value="50.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <LabelledSlider fx:id="lsTargetLength" majorTickUnit="5.0" max="1000.0" min="25.0" snapToTicks="true" value="300.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <LabelledSlider fx:id="lsPoolSize" max="100.0" min="1.0" snapToTicks="true" value="50.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <LabelledSlider fx:id="lsReadLength" max="50.0" min="10.0" snapToTicks="true" value="30.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
             <LabelledSlider fx:id="lsError" max="30.0" snapToTicks="true" GridPane.columnIndex="1" GridPane.rowIndex="5" />
             <Button fx:id="bGenerate" onAction="#onGenerateButton" alignment="CENTER" contentDisplay="TOP" defaultButton="true" mnemonicParsing="false" text="Generate" GridPane.columnIndex="1" GridPane.rowIndex="6" />

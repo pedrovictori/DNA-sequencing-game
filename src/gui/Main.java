@@ -150,6 +150,10 @@ public class Main extends Application{
 	}
 
 	@FXML protected void onGenerateButton(ActionEvent event) {
+		//clear previous case
+		vbSeq.getChildren().clear();
+		
+		//get settings
 		int targetSize = lsTargetLength.getValue().intValue();
 		int poolSize = lsPoolSize.getValue().intValue();
 		int readsLength = lsReadLength.getValue().intValue();

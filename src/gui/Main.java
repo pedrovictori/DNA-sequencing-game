@@ -87,15 +87,15 @@ public class Main extends Application{
 		});
 	}
 
-	private void generateSequences(int targetSize, int poolSize, int readsLength) {
+	private void generateSequences(int targetSize, int poolSize, int readsLength, int error) {
 		DropShadow highlight = new DropShadow(sqSize, Color.BLACK);
 		vbSeq.setSpacing(sqSize);
 		fragmentVBox = new VBox(sqSize); //use sqSize as spacing value between children
 
 		//generate sequences
 		Sequence seq = Sequence.generator(targetSize);
-		List<Sequence> frags = seq.generateFixedSizedReads(readsLength, poolSize);
-		Collections.shuffle(frags); //shuffle the order of the fragments to add a bit of difficulty
+		List<Sequence> reads = seq.generateFixedSizedReads(readsLength, poolSize);
+		Collections.shuffle(reads); //shuffle the order of the fragments to add a bit of difficulty
 
 		//draw mould sequence
 		mould = new Group();
@@ -110,15 +110,16 @@ public class Main extends Application{
 		vbSeq.getChildren().add(mould);
 		mould.setVisible(false); //start hidden
 
-		//draw fragments
-		for (int i = 0; i < frags.size(); i++) {
-			Sequence fragment = frags.get(i);
+		//introduce error and draw fragments
+		for (int i = 0; i < reads.size(); i++) {
+			Sequence read = reads.get(i);
+			read.introduceError(error);
 			Group fragmentDrawing = new Group();
 
-			for (int j = 0; j < fragment.size(); j++) {
+			for (int j = 0; j < read.size(); j++) {
 				double xPos = sqSize*(j+1);
 				Rectangle rectangle = new Rectangle(xPos, 0, sqSize, sqSize); //xpos, ypos, width, height
-				rectangle.setFill(Color.web(fragment.get(j).getColor()));
+				rectangle.setFill(Color.web(read.get(j).getColor()));
 				fragmentDrawing.getChildren().add(rectangle);
 			}
 
@@ -138,16 +139,12 @@ public class Main extends Application{
 	}
 
 	@FXML protected void onGenerateButton(ActionEvent event) {
-		/*
-		 * 	@FXML LabelledSlider lsTargetLength;
-	@FXML LabelledSlider lsReadSize;
-	@FXML LabelledSlider lsReadLength;
-	@FXML LabelledSlider lsError;
-		 */
 		int targetSize = lsTargetLength.getValue().intValue();
 		int poolSize = lsPoolSize.getValue().intValue();
 		int readsLength = lsReadLength.getValue().intValue();
-		generateSequences(targetSize, poolSize, readsLength);
+		int error = lsError.getValue().intValue();
+
+		generateSequences(targetSize, poolSize, readsLength,error);
 	}
 
 	EventHandler<MouseEvent> groupOnMousePressedEventHandler = 

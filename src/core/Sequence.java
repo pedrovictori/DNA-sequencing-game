@@ -2,8 +2,10 @@ package core;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import core.Sequence.Base;
@@ -11,7 +13,7 @@ import toolbox.tools.MathTools;
 
 public class Sequence extends AbstractList<Base> {
 	/**
-	 * This enumeration is used to hold the char and color asociated with each base, and to provide methods to convert a char to base and vice versa.
+	 * This enumeration is used to hold the char and color associated with each base, and to provide methods to convert a char to base and vice versa.
 	 */
 	public enum Base {
 		A('a',"#1a9641"),
@@ -26,15 +28,25 @@ public class Sequence extends AbstractList<Base> {
 			this.baseChar = baseChar;
 			this.color = color;
 		}
-		
+
 		public char getChar() {
 			return baseChar;
 		}
-		
+
 		public String getColor() {
 			return color;
 		}
-		
+
+		/**
+		 * @return a random base other than the current one
+		 */
+		Base getAnotherBase(){
+			List<Base> otherBases = new LinkedList<Base>(Arrays.asList(Base.values()));
+			otherBases.remove(this);
+			Collections.shuffle(otherBases);
+			return otherBases.get(0);
+		}
+
 		/**
 		 * Static method that tries to convert a given char into the assigned base.
 		 * @throws IllegalArgumentException if the given char is not a, c, g or t.
@@ -62,7 +74,7 @@ public class Sequence extends AbstractList<Base> {
 	public Sequence(String seqStr) {
 		sequence =  stringToSequence(seqStr);
 	}
-	
+
 	/**
 	 * As per the recommendation in the Collection interface specification.
 	 * @param sequence
@@ -70,12 +82,12 @@ public class Sequence extends AbstractList<Base> {
 	private Sequence (Collection<Base> sequence) {
 		this.sequence.addAll(sequence);
 	}
-	
+
 	/**
 	 * As per the recommendation in the Collection interface specification.
 	 */
 	public Sequence() {}
-	
+
 	/**
 	 * Creates a new Sequence object with a random sequence of the specified length.
 	 * @param length the number of bases in the new sequence.
@@ -148,12 +160,15 @@ public class Sequence extends AbstractList<Base> {
 	}
 
 	public void introduceError(int percentage){
-		List<Base> 
-		int nBasesToChange = sequence.size()*percentage/100; 
-		int[] errorIndexes = MathTools.genRandomUniqueIntegers(nBasesToChange, 0, sequence.size()-1);
+		if(percentage!=0){
+			int nBasesToChange = size()*percentage/100; 
+			int[] errorIndexes = MathTools.genRandomUniqueIntegers(nBasesToChange, 0, size()-1);
+			System.out.println(Integer.toString(nBasesToChange));
+			System.out.println(Integer.toString(errorIndexes.length));
 
-		for(int i = 0; i<nBasesToChange; i++){
-
+			for(int i = 0; i<nBasesToChange; i++){
+				set(errorIndexes[i], get(i).getAnotherBase());
+			}
 		}
 	}
 
@@ -164,17 +179,17 @@ public class Sequence extends AbstractList<Base> {
 	public String toString() {
 		return sequenceToString(this);
 	}
-	
+
 	private static List<Base> stringToSequence (String sequence){
 		char[] chars = sequence.trim().toCharArray();
 		List<Base> bases = new ArrayList<Base>();
 		for (char c : chars) {
 			bases.add(Base.toBase(c));
 		}
-		
+
 		return bases;
 	}
-	
+
 	/**
 	 * Exports a given Sequence as a String, each base represented by its assigned char.
 	 * @param seq the Sequence instance to export.
@@ -192,17 +207,17 @@ public class Sequence extends AbstractList<Base> {
 	public int size() {
 		return sequence.size();
 	}
-	
+
 	@Override
 	public Base set(int index, Base base) {
 		return sequence.set(index, base);
 	}
-	
+
 	@Override
 	public Base remove(int index) {
 		return sequence.remove(index);
 	}
-	
+
 	public void add(int index, Base base) {
 		sequence.add(index, base);
 	}

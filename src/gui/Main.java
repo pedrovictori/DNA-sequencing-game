@@ -6,6 +6,8 @@ import java.util.List;
 
 import core.Sequence;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -64,7 +66,7 @@ public class Main extends Application{
 			e.printStackTrace();
 		}
 	}
-	
+
 	@FXML public void initialize(){
 		//show/hide button
 		ImageView ivShow = new ImageView(new Image("/res/show.png", 30, 30, true, true));		
@@ -83,6 +85,15 @@ public class Main extends Application{
 					mould.setVisible(true);
 					bShow.setGraphic(ivHide);
 				}
+			}
+		});
+
+		//adjust max sliders' values according to target sequence length
+		lsTargetLength.valueProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {	
+				lsPoolSize.setMax((double) new_val);
+				lsReadLength.setMax((double)new_val/2);
 			}
 		});
 	}

@@ -1,6 +1,7 @@
 package gui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,10 +19,15 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -33,10 +39,13 @@ public class Main extends Application{
 	@FXML VBox vbSeq;
 	@FXML LabelledSlider lsTargetLength;
 	@FXML LabelledSlider lsPoolSize;
-	@FXML LabelledSlider lsReadLength;
+	@FXML ToggleGroup tgReadLength;
 	@FXML LabelledSlider lsError;
 	@FXML Button bGenerate;
 	@FXML Button bShow;
+	@FXML RadioButton rbV;
+	@FXML RadioButton rbF;
+	@FXML GridPane grid;
 
 
 	double sqSize = 10;
@@ -47,6 +56,8 @@ public class Main extends Application{
 	VBox fragmentVBox;
 
 	Group mould;
+	List<LabelledSlider> readSliders = new ArrayList<LabelledSlider>();
+	boolean isReadsLengthFixed;
 
 	public static void main(String[] args) {
 		launch(args);
@@ -88,14 +99,56 @@ public class Main extends Application{
 			}
 		});
 
+		tgReadLength.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
+			public void changed(ObservableValue<? extends Toggle> ov,
+					Toggle old_toggle, Toggle new_toggle) {
+				VBox box;
+				if(new_toggle==rbV){
+					box = createFixedLengthGUI();
+				}
+				
+				else{
+					box = createVariableLengthGUI();
+				}
+				
+				GridPane.setConstraints(box, 1, 4);
+				grid.getChildren().set(grid.getChildren().size()-1,box);
+			}
+		});
+
 		//adjust max sliders' values according to target sequence length
 		lsTargetLength.valueProperty().addListener(new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {	
 				lsPoolSize.setMax((double) new_val);
-				lsReadLength.setMax((double)new_val/2);
+				//lsReadLength.setMax((double)new_val/2);
 			}
 		});
+	}
+
+	private VBox createFixedLengthGUI(){
+		Label label = new Label("Read length");
+		LabelledSlider slider = new LabelledSlider(10, 150, 30);
+		VBox box = new VBox(5, label,slider);
+		readSliders.add(slider);
+
+		return box;
+	}
+
+	private VBox createVariableLengthGUI(){
+		Label labelMin = new Label("Minimum length");
+		LabelledSlider sliderMin = new LabelledSlider(10, 150, 10);
+
+		Label labelMax = new Label("Maximum length");
+		LabelledSlider sliderMax = new LabelledSlider(10, 150, 70);
+
+		Label labelSc = new Label("Scale");
+		LabelledSlider sliderSc = new LabelledSlider(5, 70, 30);
+
+		VBox box = new VBox(5, labelMin, sliderMin, labelMax, sliderMax, labelSc, sliderSc);
+		readSliders.addAll(Arrays.asList(sliderMin,sliderMax,sliderSc));
+
+		return box;
 	}
 
 	private void generateSequences(int targetSize, int poolSize, int readsLength, int error) {
@@ -152,11 +205,11 @@ public class Main extends Application{
 	@FXML protected void onGenerateButton(ActionEvent event) {
 		//clear previous case
 		vbSeq.getChildren().clear();
-		
+
 		//get settings
 		int targetSize = lsTargetLength.getValue().intValue();
 		int poolSize = lsPoolSize.getValue().intValue();
-		int readsLength = lsReadLength.getValue().intValue();
+		int readsLength = 50; // lsReadLength.getValue().intValue();
 		int error = lsError.getValue().intValue();
 
 		generateSequences(targetSize, poolSize, readsLength,error);

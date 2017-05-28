@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.math3.distribution.NormalDistribution;
+
 import core.Sequence.Base;
 import toolbox.tools.MathTools;
 
@@ -110,15 +112,44 @@ public class Sequence extends AbstractList<Base> {
 
 	public List<Sequence> generateFixedSizedReads(int length, int poolSize){
 		List<Sequence> reads = new ArrayList<Sequence>();
-		int[] indexes = MathTools.genRandomUniqueIntegers(poolSize, 0, sequence.size()-length-1);
+		int[] indexes = MathTools.genRandomUniqueIntegers(poolSize, 0, size()-length-1);
 
 		for(int i=0;i<poolSize;i++){
 			/* we could simply add a cast to Sequence, since Sequence itself is a subclass of List, 
 			 * but this way we create a new object, independent from the mould */
-			Sequence read = new Sequence(this.subList(indexes[i], indexes[i]+length));
+			Sequence read = new Sequence(subList(indexes[i], indexes[i]+length));
 			reads.add(read);
 		}
 
+		return reads;
+	}
+	
+	public List<Sequence> generateVariableSizeReads(double mean, double sd, int poolSize) {
+		List<Sequence> reads = new ArrayList<Sequence>();
+		NormalDistribution nd = new NormalDistribution(mean, sd);
+		Integer[] lengths = new Integer[poolSize];
+	
+		for(int i=0;i<poolSize;i++){
+			lengths[i] = (int) nd.sample();		
+		}
+		
+		int smallestLength = MathTools.findSmallest(Arrays.asList(lengths));
+		int[] indexes = MathTools.genRandomUniqueIntegers(poolSize, 0, size()-smallestLength-1);
+		
+		for(int i=0;i<poolSize;i++){
+			int endIndex =indexes[i] + lengths[i];
+			
+			/*if this read would overrun the sequence total length, cut it so it ends where the target ends.
+			*we know that even when cut, this read won't be shorter than the minimum, because between the biggest 
+			*possible index and the end of the target is a length equal to the smallest read length (see a couple of lines above)*/
+			if(endIndex>=size()){
+				endIndex = size()-1;
+			}
+			
+			Sequence read = new Sequence(subList(indexes[i], endIndex));
+			reads.add(read);
+		}
+		
 		return reads;
 	}
 

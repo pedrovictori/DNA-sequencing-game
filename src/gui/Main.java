@@ -56,8 +56,9 @@ public class Main extends Application{
 	VBox fragmentVBox;
 
 	Group mould;
+	VBox readsBox;
 	List<LabelledSlider> readSliders = new ArrayList<LabelledSlider>();
-	boolean isReadsLengthFixed;
+	Boolean isReadsLengthFixed;
 
 	public static void main(String[] args) {
 		launch(args);
@@ -102,17 +103,19 @@ public class Main extends Application{
 		tgReadLength.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
 			public void changed(ObservableValue<? extends Toggle> ov,
 					Toggle old_toggle, Toggle new_toggle) {
-				VBox box;
-				if(new_toggle==rbV){
-					box = createFixedLengthGUI();
+				grid.getChildren().remove(readsBox);
+
+				if(new_toggle==rbF){
+					readsBox = createFixedLengthGUI();
 				}
-				
+
 				else{
-					box = createVariableLengthGUI();
+					readsBox = createVariableLengthGUI();
 				}
-				
-				GridPane.setConstraints(box, 1, 4);
-				grid.getChildren().set(grid.getChildren().size()-1,box);
+
+				GridPane.setConstraints(readsBox, 1, 4);
+
+				grid.getChildren().add(readsBox);			
 			}
 		});
 
@@ -121,51 +124,86 @@ public class Main extends Application{
 			@Override
 			public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {	
 				lsPoolSize.setMax((double) new_val);
-				//lsReadLength.setMax((double)new_val/2);
+
+				if(isReadsLengthFixed != null) {
+					if(isReadsLengthFixed){
+						readSliders.get(0).setMax((double)new_val/2);
+					}
+
+					else {
+						readSliders.get(1).setMax((double)new_val/2);
+					}
+				}
 			}
 		});
 	}
 
 	private VBox createFixedLengthGUI(){
 		Label label = new Label("Read length");
-		LabelledSlider slider = new LabelledSlider(10, 150, 30);
+		double targetLength = lsTargetLength.getValue();
+		double max = targetLength/2;
+		double value = (max-10)/2;
+		LabelledSlider slider = new LabelledSlider(10, max, value);
 		VBox box = new VBox(5, label,slider);
-		readSliders.add(slider);
-
+		readSliders.set(0,slider);
+		isReadsLengthFixed = true;
 		return box;
 	}
 
-	private VBox createVariableLengthGUI(){
+	private VBox createVariableLengthGUI(){		
+		double targetLength = lsTargetLength.getValue();
+		double max = targetLength/2;
+		double value = (max-10)/2;
+		double maxSc = (max - value)/2;
+
 		Label labelMin = new Label("Minimum length");
-		LabelledSlider sliderMin = new LabelledSlider(10, 150, 10);
+		LabelledSlider sliderMin = new LabelledSlider(10, value, 10);
 
 		Label labelMax = new Label("Maximum length");
-		LabelledSlider sliderMax = new LabelledSlider(10, 150, 70);
+		LabelledSlider sliderMax = new LabelledSlider(10, max, value);
 
 		Label labelSc = new Label("Scale");
-		LabelledSlider sliderSc = new LabelledSlider(5, 70, 30);
+		LabelledSlider sliderSc = new LabelledSlider(5, maxSc, maxSc/2);
+
+		//maximum scale value depends on maximum and minimum length values
+		sliderMin.valueProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {	
+				double newMaxSc = (sliderMax.getValue() - sliderMin.getValue())/2;
+				sliderSc.setMax(newMaxSc);
+			}
+		});
+
+		sliderMax.valueProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {	
+				sliderMin.setMax((double)new_val);
+				double newMaxSc = (sliderMax.getValue() - sliderMin.getValue())/2;
+				sliderSc.setMax(newMaxSc);
+			}
+		});
 
 		VBox box = new VBox(5, labelMin, sliderMin, labelMax, sliderMax, labelSc, sliderSc);
+		readSliders.clear();
 		readSliders.addAll(Arrays.asList(sliderMin,sliderMax,sliderSc));
 
+		isReadsLengthFixed = false;
 		return box;
 	}
 
-	private void generateSequences(int targetSize, int poolSize, int readsLength, int error) {
+	private void drawSequences(Sequence seq, List<Sequence> reads, int error) {
 		DropShadow highlight = new DropShadow(sqSize, Color.BLACK);
 		vbSeq.setSpacing(sqSize);
 		fragmentVBox = new VBox(sqSize); //use sqSize as spacing value between children
 
-		//generate sequences
-		Sequence seq = Sequence.generator(targetSize);
-		List<Sequence> reads = seq.generateFixedSizedReads(readsLength, poolSize);
+
 		Collections.shuffle(reads); //shuffle the order of the fragments to add a bit of difficulty
 
 		//draw mould sequence
 		mould = new Group();
 
 		for (int i = 0; i < seq.size(); i++) {
-			double xPos = sqSize*(i+readsLength);
+			double xPos = sqSize*(i+30);
 			Rectangle rectangle = new Rectangle(xPos, 0, sqSize, sqSize); //xpos, ypos, width, height
 			rectangle.setFill(Color.web(seq.get(i).getColor()));
 			mould.getChildren().add(rectangle);
@@ -209,10 +247,28 @@ public class Main extends Application{
 		//get settings
 		int targetSize = lsTargetLength.getValue().intValue();
 		int poolSize = lsPoolSize.getValue().intValue();
-		int readsLength = 50; // lsReadLength.getValue().intValue();
 		int error = lsError.getValue().intValue();
 
-		generateSequences(targetSize, poolSize, readsLength,error);
+		//generate target
+		Sequence seq = Sequence.generator(targetSize);
+		
+		List<Sequence> reads;
+		
+		//fixed or variable length?
+		if(isReadsLengthFixed){
+			int readsLength = readSliders.get(0).getValue().intValue();
+			reads = seq.generateFixedSizedReads(readsLength, poolSize);
+		}
+		
+		else{
+			double min = readSliders.get(0).getValue().intValue();
+			double max = readSliders.get(1).getValue().intValue();
+			//TODO implement scale
+			
+			reads= seq.generateVariableSizeReads((max+min)/2, (max-min)/2, poolSize);
+		}
+		
+		drawSequences(seq,reads,error);
 	}
 
 	EventHandler<MouseEvent> groupOnMousePressedEventHandler = 

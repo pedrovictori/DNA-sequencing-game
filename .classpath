@@ -13,5 +13,10 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/DNA-sequencing-game/lib/more-controls-v0.2.0-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/commons-math3-3.6.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/DNA-sequencing-game/lib/commons-math3-3.6.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

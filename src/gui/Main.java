@@ -145,7 +145,8 @@ public class Main extends Application{
 		double value = (max-10)/2;
 		LabelledSlider slider = new LabelledSlider(10, max, value);
 		VBox box = new VBox(5, label,slider);
-		readSliders.set(0,slider);
+		readSliders.clear();
+		readSliders.add(slider);
 		isReadsLengthFixed = true;
 		return box;
 	}

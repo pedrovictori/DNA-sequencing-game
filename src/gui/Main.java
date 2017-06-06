@@ -21,6 +21,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.effect.DropShadow;
@@ -46,6 +47,7 @@ public class Main extends Application{
 	@FXML RadioButton rbV;
 	@FXML RadioButton rbF;
 	@FXML GridPane grid;
+	@FXML TitledPane tpOptions;
 
 
 	double sqSize = 10;
@@ -251,6 +253,9 @@ public class Main extends Application{
 	@FXML protected void onGenerateButton(ActionEvent event) {
 		//clear previous case
 		vbSeq.getChildren().clear();
+		
+		//collapse options pane
+		tpOptions.setExpanded(false);
 
 		//get settings
 		int targetSize = lsTargetLength.getValue().intValue();

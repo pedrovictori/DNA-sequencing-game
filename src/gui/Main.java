@@ -32,6 +32,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import sliders.LabelledSlider;
 
@@ -204,7 +205,7 @@ public class Main extends Application{
 		mould = new Group();
 
 		for (int i = 0; i < seq.size(); i++) {
-			double xPos = sqSize*(i+30);
+			double xPos = sqSize*i;
 			Rectangle rectangle = new Rectangle(xPos, 0, sqSize, sqSize); //xpos, ypos, width, height
 			rectangle.setFill(Color.web(seq.get(i).getColor()));
 			mould.getChildren().add(rectangle);
@@ -212,29 +213,36 @@ public class Main extends Application{
 
 		vbSeq.getChildren().add(mould);
 		mould.setVisible(false); //start hidden
-
+		
 		//introduce error and draw fragments
 		for (int i = 0; i < reads.size(); i++) {
 			Sequence read = reads.get(i);
 			read.introduceError(error);
 			Group fragmentDrawing = new Group();
-
+			
+			//adding number
+			String number = Integer.toString(i);
+			int margin = 3-number.length();
+			Rectangle space = new Rectangle(0,0,sqSize*margin,sqSize);
+			space.setFill(Color.TRANSPARENT);
+			Text text = new Text(sqSize*margin, 10, number);	
+			fragmentDrawing.getChildren().addAll(space,text);
+			
 			for (int j = 0; j < read.size(); j++) {
-				double xPos = sqSize*(j+1);
+				double xPos = sqSize*(j+3);
 				Rectangle rectangle = new Rectangle(xPos, 0, sqSize, sqSize); //xpos, ypos, width, height
 				rectangle.setFill(Color.web(read.get(j).getColor()));
 				fragmentDrawing.getChildren().add(rectangle);
 			}
 
-			//testing
-			Text text = new Text(Integer.toString(i));
-			fragmentDrawing.getChildren().add(text);
+			
 
 			fragmentDrawing.setEffect(highlight);
 			fragmentDrawing.setCursor(Cursor.MOVE);
 			fragmentDrawing.setOnMousePressed(groupOnMousePressedEventHandler);
 			fragmentDrawing.setOnMouseDragged(groupOnMouseDraggedEventHandler);
 			fragmentDrawing.setOnMouseReleased(groupOnMouseRelesedEventHandler);
+			
 			fragmentVBox.getChildren().add(fragmentDrawing);
 		}
 

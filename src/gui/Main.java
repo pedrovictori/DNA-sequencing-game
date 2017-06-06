@@ -196,7 +196,7 @@ public class Main extends Application{
 	private void drawSequences(Sequence seq, List<Sequence> reads, int error) {
 		DropShadow highlight = new DropShadow(sqSize, Color.BLACK);
 		vbSeq.setSpacing(sqSize);
-		fragmentVBox = new VBox(sqSize); //use sqSize as spacing value between children
+		fragmentVBox = new VBox(sqSize/2); //use sqSize as spacing value between children
 
 
 		Collections.shuffle(reads); //shuffle the order of the fragments to add a bit of difficulty

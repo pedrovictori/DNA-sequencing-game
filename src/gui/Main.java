@@ -48,15 +48,15 @@ public class Main extends Application{
 	@FXML RadioButton rbF;
 	@FXML GridPane grid;
 	@FXML TitledPane tpOptions;
-
-
+	
 	double sqSize = 10;
 	double orgSceneX, orgSceneY;
 	double orgTranslateX, orgTranslateY;
+	Group draggedBar;
 	String showButtonText = "Show mould sequence";
 	String hideButtonText = "Hide mould sequence";
 	VBox fragmentVBox;
-
+	
 	Group mould;
 	VBox readsBox;
 	List<LabelledSlider> readSliders = new ArrayList<LabelledSlider>();
@@ -195,7 +195,6 @@ public class Main extends Application{
 	}
 
 	private void drawSequences(Sequence seq, List<Sequence> reads, int error) {
-		DropShadow highlight = new DropShadow(sqSize, Color.BLACK);
 		vbSeq.setSpacing(sqSize);
 		fragmentVBox = new VBox(sqSize/2); //use sqSize as spacing value between children
 
@@ -219,7 +218,7 @@ public class Main extends Application{
 		for (int i = 0; i < reads.size(); i++) {
 			Sequence read = reads.get(i);
 			read.introduceError(error);
-			Group fragmentDrawing = new Group();
+			Group bar = new Group();
 			
 			//adding number
 			String number = Integer.toString(i);
@@ -227,27 +226,29 @@ public class Main extends Application{
 			Rectangle space = new Rectangle(0,0,sqSize*margin,sqSize);
 			space.setFill(Color.TRANSPARENT);
 			Text text = new Text(sqSize*margin, 10, number);	
-			fragmentDrawing.getChildren().addAll(space,text);
+			bar.getChildren().addAll(space,text);
 			
 			for (int j = 0; j < read.size(); j++) {
 				double xPos = sqSize*(j+3);
 				Rectangle rectangle = new Rectangle(xPos, 0, sqSize, sqSize); //xpos, ypos, width, height
 				rectangle.setFill(Color.web(read.get(j).getColor()));
-				fragmentDrawing.getChildren().add(rectangle);
+				bar.getChildren().add(rectangle);
 			}
-
 			
-
-			fragmentDrawing.setEffect(highlight);
-			fragmentDrawing.setCursor(Cursor.MOVE);
-			fragmentDrawing.setOnMousePressed(groupOnMousePressedEventHandler);
-			fragmentDrawing.setOnMouseDragged(groupOnMouseDraggedEventHandler);
-			fragmentDrawing.setOnMouseReleased(groupOnMouseRelesedEventHandler);
-			
-			fragmentVBox.getChildren().add(fragmentDrawing);
+			prepareBar(bar);
+			fragmentVBox.getChildren().add(bar);
 		}
 
 		vbSeq.getChildren().add(fragmentVBox);
+	}
+	
+	private void prepareBar(Group bar) {
+		DropShadow highlight = new DropShadow(sqSize, Color.BLACK);
+		bar.setEffect(highlight);
+		bar.setCursor(Cursor.MOVE);
+		bar.setOnMousePressed(groupOnMousePressedEventHandler);
+		bar.setOnMouseDragged(groupOnMouseDraggedEventHandler);
+		bar.setOnMouseReleased(groupOnMouseRelesedEventHandler);
 	}
 
 	@FXML protected void onGenerateButton(ActionEvent event) {
@@ -288,11 +289,13 @@ public class Main extends Application{
 			new EventHandler<MouseEvent>() {
 
 		@Override
-		public void handle(MouseEvent t) {
+		public void handle(MouseEvent t) {		
 			orgSceneX = t.getSceneX();
 			orgSceneY = t.getSceneY();
-			orgTranslateX = ((Group)(t.getSource())).getTranslateX();
-			orgTranslateY = ((Group)(t.getSource())).getTranslateY();
+			draggedBar = (Group) t.getSource();
+			orgTranslateX = draggedBar.getTranslateX();
+			orgTranslateY = draggedBar.getTranslateY();
+			
 		}
 	};
 
@@ -303,10 +306,15 @@ public class Main extends Application{
 		public void handle(MouseEvent t) {
 			double offsetX = t.getSceneX() - orgSceneX;
 			double newTranslateX = orgTranslateX + offsetX;
+			
+			double offsetY = t.getSceneY() - orgSceneY;
+			double newTranslateY = orgTranslateY + offsetY;
 
 			double nSq = Math.round((newTranslateX)/sqSize);
 			newTranslateX = sqSize*nSq;
-			((Group)(t.getSource())).setTranslateX(newTranslateX);
+			
+			draggedBar.setTranslateX(newTranslateX); //move copy
+			draggedBar.setTranslateY(newTranslateY);
 		}
 	};
 
@@ -317,9 +325,9 @@ public class Main extends Application{
 		public void handle(MouseEvent t) {
 			double offsetY = t.getSceneY() - orgSceneY;
 			double newTranslateY = orgTranslateY + offsetY;
-
-			int nRows = (int) Math.round(newTranslateY/(sqSize*4));
-			int currentIndex = fragmentVBox.getChildren().indexOf((Group) t.getSource());
+			
+			int nRows = (int) Math.round(newTranslateY/(sqSize*2+1));
+			int currentIndex = fragmentVBox.getChildren().indexOf(draggedBar);
 			int newIndex = currentIndex+nRows;
 			int size = fragmentVBox.getChildren().size();
 			if(Math.abs(nRows) >= 1) {
@@ -328,8 +336,10 @@ public class Main extends Application{
 
 				List<Node> fragments = new ArrayList<Node>(fragmentVBox.getChildren());
 				fragmentVBox.getChildren().clear();
-				fragments.add(newIndex, fragments.remove(currentIndex));
-
+				fragments.remove(currentIndex);
+				Group copy = new Group(draggedBar.getChildren());
+				prepareBar(copy);
+				fragments.add(newIndex,copy) ;
 				fragmentVBox.getChildren().addAll(fragments);
 
 			}

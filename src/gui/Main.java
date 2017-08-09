@@ -208,7 +208,7 @@ public class Main extends Application{
 		for (int i = 0; i < seq.size(); i++) {
 			double xPos = sqSize*i;
 			Rectangle rectangle = new Rectangle(xPos, 0, sqSize, sqSize); //xpos, ypos, width, height
-			rectangle.setFill(Color.web(seq.get(i).getColor()));
+			rectangle.setFill(Color.web(seq.getColor(i)));
 			mould.getChildren().add(rectangle);
 		}
 
@@ -217,7 +217,7 @@ public class Main extends Application{
 		
 		//introduce error and draw fragments
 		for (int i = 0; i < reads.size(); i++) {
-			Sequence read = reads.get(i);
+			Sequenceable read = reads.get(i);
 			read.introduceError(error);
 			Group bar = new Group();
 			
@@ -232,7 +232,7 @@ public class Main extends Application{
 			for (int j = 0; j < read.size(); j++) {
 				double xPos = sqSize*(j+3);
 				Rectangle rectangle = new Rectangle(xPos, 0, sqSize, sqSize); //xpos, ypos, width, height
-				rectangle.setFill(Color.web(read.get(j).getColor()));
+				rectangle.setFill(Color.web(read.getColor(j)));
 				bar.getChildren().add(rectangle);
 			}
 			

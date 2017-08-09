@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 
 import toolbox.tools.MathTools;
+import toolbox.utils.TextFile;
 
 public class TextSequence extends AbstractList<Character> implements Sequenceable{
 	private List<Character> sequence = new ArrayList<Character>();
@@ -38,6 +40,19 @@ public class TextSequence extends AbstractList<Character> implements Sequenceabl
 	 * As per the recommendation in the Collection interface specification.
 	 */
 	public TextSequence() {}
+	
+	/**
+	 * Returns a new TextSequence object initialized with a String sequence from the /src/res/sentences.txt file, chosen at random.
+	 */
+	public static TextSequence generate() {
+		TextFile file = new TextFile("sentences.txt");
+		int random = ThreadLocalRandom.current().nextInt(0, file.getLinesNumber() + 1);
+		return new TextSequence(file.getLine(random));
+	}
+	
+	public String getColor(int i) {
+		return "#F0FFFF";
+	}
 	
 	public List<Sequenceable> generateFixedSizedReads(int length, int poolSize){
 		List<Sequenceable> reads = new ArrayList<Sequenceable>();

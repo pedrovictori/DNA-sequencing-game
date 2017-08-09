@@ -72,7 +72,11 @@ public class Sequence extends AbstractList<Character> implements Sequenceable{
 		System.out.println(generated.toString());//testing
 		return generated;
 	}
-
+	
+	public String getColor(int i) {
+		return baseColors.get(sequence.get(i));
+	}
+	
 	public List<Sequenceable> generateFixedSizedReads(int length, int poolSize){
 		List<Sequenceable> reads = new ArrayList<Sequenceable>();
 		int[] indexes = MathTools.genRandomUniqueIntegers(poolSize, 0, size()-length-1);

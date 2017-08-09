@@ -22,4 +22,6 @@ public interface Sequenceable extends List<Character>{
 		return string;
 	}
 	
+	public String getColor(int i);
+	
 }

@@ -4,40 +4,25 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 
 import toolbox.tools.MathTools;
 
-public class Sequence extends AbstractList<Character> implements Sequenceable{
-	
-	/** 
-	 * Stores the colors that represent each base.
-	 */
-	private static Map<Character,String> baseColors = new HashMap<Character,String>();
-	
-	static {
-		baseColors.put('a',"#1a9641");
-		baseColors.put('c',"#fdae61");
-		baseColors.put('g',"#d7191c");
-		baseColors.put('t',"#a6d96a");
-	}
-	
-	private static final Character[] bases = {'a','c','g','t'};
-
+public class TextSequence extends AbstractList<Character> implements Sequenceable{
 	private List<Character> sequence = new ArrayList<Character>();
+
 
 	/**
 	 * Creates a new Sequence object with the specified sequence.
 	 * @param seqStr a String representing the desired sequence.
 	 */
-	public Sequence(String seqStr) {
-		for (char character : seqStr.toCharArray()) {
-			sequence.add(character);
+	public TextSequence(String seqStr) {
+		char[] chars = seqStr.trim().toCharArray();
+		sequence = new ArrayList<Character>();
+		for (char c : chars) {
+			sequence.add(c);
 		}
 	}
 
@@ -45,34 +30,15 @@ public class Sequence extends AbstractList<Character> implements Sequenceable{
 	 * As per the recommendation in the Collection interface specification.
 	 * @param sequence
 	 */
-	private Sequence (Collection<Character> sequence) {
+	private TextSequence (Collection<Character> sequence) {
 		this.sequence.addAll(sequence);
 	}
 
 	/**
 	 * As per the recommendation in the Collection interface specification.
 	 */
-	public Sequence() {}
-
-	/**
-	 * Creates a new Sequence object with a random sequence of the specified length.
-	 * @param length the number of bases in the new sequence.
-	 * @return the generated Sequence instance.
-	 */
-	public static Sequence generator(int length) {
-		List<Character> list = new ArrayList<Character>();
-
-		for(int i=0,c=0;i<length;i++,c++) { //create a list of acgt repeated until reaching the specified length
-			if(c==4) {c=0;}
-			list.add(bases[c]);
-		}
-
-		Collections.shuffle(list); //shuffle the sequence
-		Sequence generated = new Sequence(list);
-		System.out.println(generated.toString());//testing
-		return generated;
-	}
-
+	public TextSequence() {}
+	
 	public List<Sequenceable> generateFixedSizedReads(int length, int poolSize){
 		List<Sequenceable> reads = new ArrayList<Sequenceable>();
 		int[] indexes = MathTools.genRandomUniqueIntegers(poolSize, 0, size()-length-1);
@@ -80,7 +46,7 @@ public class Sequence extends AbstractList<Character> implements Sequenceable{
 		for(int i=0;i<poolSize;i++){
 			/* we could simply add a cast to Sequence, since Sequence itself is a subclass of List, 
 			 * but this way we create a new object, independent from the mould */
-			Sequence read = new Sequence(subList(indexes[i], indexes[i]+length));
+			TextSequence read = new TextSequence(subList(indexes[i], indexes[i]+length));
 			reads.add(read);
 		}
 
@@ -109,51 +75,53 @@ public class Sequence extends AbstractList<Character> implements Sequenceable{
 				endIndex = size()-1;
 			}
 			
-			Sequence read = new Sequence(subList(indexes[i], endIndex));
+			Sequenceable read = new TextSequence(subList(indexes[i], endIndex));
 			reads.add(read);
 		}
 		
 		return reads;
 	}
-
+	
 	public void introduceError(int percentage){
 		if(percentage!=0){
 			int nBasesToChange = size()*percentage/100; 
 			int[] errorIndexes = MathTools.genRandomUniqueIntegers(nBasesToChange, 0, size()-1);
 			System.out.println(Integer.toString(nBasesToChange));
 			System.out.println(Integer.toString(errorIndexes.length));
-			
-			
 
 			for(int i = 0; i<nBasesToChange; i++){
-				set(errorIndexes[i], getAnotherBase(get(errorIndexes[i])));
+				set(errorIndexes[i], getAnotherLetter(get(errorIndexes[i])));
 			}
 		}
 	}
 	
-	private static Character getAnotherBase(char c) {
-		List<Character> characters = Arrays.asList(bases);
-		characters.remove(c);
-		Collections.shuffle(characters);
-		return characters.get(0);
+	private static Character getAnotherLetter(char c) {
+		String letters = "abcdefghijklmnopqrstuvwxyz";
+		
+		int index = MathTools.genRandomIntegers(1, 0, letters.length()-1)[0];
+		if(letters.charAt(index) == c) {
+			index++;
+			if(index== letters.length()) {
+				index = 0;
+			}
+		}
+		return letters.charAt(index);
 		
 	}
-	/**
-	 * Applies the sequenceToString method to this instance.
-	 */
+	
 	@Override
-	public String toString() {
-		return Sequenceable.sequenceToString(this);
+	public Character get(int index) {
+		return sequence.get(index);
 	}
 
 	@Override
 	public int size() {
 		return sequence.size();
 	}
-
+	
 	@Override
-	public Character set(int index, Character base) {
-		return sequence.set(index, base);
+	public Character set(int index, Character character) {
+		return sequence.set(index, character);
 	}
 
 	@Override
@@ -161,12 +129,8 @@ public class Sequence extends AbstractList<Character> implements Sequenceable{
 		return sequence.remove(index);
 	}
 
-	public void add(int index, Character base) {
-		sequence.add(index, base);
+	public void add(int index, Character character) {
+		sequence.add(index, character);
 	}
-
-	@Override
-	public Character get(int index) {
-		return sequence.get(index);
-	}
+	
 }

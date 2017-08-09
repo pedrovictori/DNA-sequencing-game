@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import core.Sequence;
+import core.Sequenceable;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -194,7 +195,7 @@ public class Main extends Application{
 		return box;
 	}
 
-	private void drawSequences(Sequence seq, List<Sequence> reads, int error) {
+	private void drawSequences(Sequence seq, List<Sequenceable> reads, int error) {
 		vbSeq.setSpacing(sqSize);
 		fragmentVBox = new VBox(sqSize/2); //use sqSize as spacing value between children
 
@@ -266,7 +267,7 @@ public class Main extends Application{
 		//generate target
 		Sequence seq = Sequence.generator(targetSize);
 		
-		List<Sequence> reads;
+		List<Sequenceable> reads;
 		
 		//fixed or variable length?
 		if(isReadsLengthFixed){

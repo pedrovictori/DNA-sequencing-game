@@ -16,7 +16,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import sliders.LabelledSlider?>
 
-<BorderPane  xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.Main">
+<BorderPane xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.Main">
 	<center>
       		<ScrollPane BorderPane.alignment="CENTER">
       			<content>
@@ -113,7 +113,12 @@
             		</GridPane>
                </content>
             </TitledPane>
-            <Button fx:id="bGenerate" alignment="CENTER" contentDisplay="TOP" defaultButton="true" mnemonicParsing="false" onAction="#onGenerateButton" text="Generate" />
+            <VBox spacing="10.0">
+               <children>
+                  <Button fx:id="bGenerate" alignment="CENTER" contentDisplay="TOP" defaultButton="true" mnemonicParsing="false" onAction="#onGenerateButton" text="Generate DNA sequence" />
+                  <Button fx:id="bSentence" mnemonicParsing="false" onAction="#onSentenceButton" text="Generate sentence" />
+               </children>
+            </VBox>
          </children>
       </HBox>
 	</top>

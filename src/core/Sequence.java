@@ -59,7 +59,7 @@ public class Sequence extends AbstractList<Character> implements Sequenceable{
 	 * @param length the number of bases in the new sequence.
 	 * @return the generated Sequence instance.
 	 */
-	public static Sequence generator(int length) {
+	public static Sequence generate(int length) {
 		List<Character> list = new ArrayList<Character>();
 
 		for(int i=0,c=0;i<length;i++,c++) { //create a list of acgt repeated until reaching the specified length
@@ -135,8 +135,11 @@ public class Sequence extends AbstractList<Character> implements Sequenceable{
 		}
 	}
 	
-	private static Character getAnotherBase(char c) {
-		List<Character> characters = Arrays.asList(bases);
+	private static Character getAnotherBase(Character c) {
+		List<Character> characters = new ArrayList<Character>();
+		for (Character character : bases) {
+			characters.add(character);
+		}
 		characters.remove(c);
 		Collections.shuffle(characters);
 		return characters.get(0);

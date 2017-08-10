@@ -7,6 +7,7 @@ import java.util.List;
 
 import core.Sequence;
 import core.Sequenceable;
+import core.TextSequence;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -33,7 +34,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextBoundsType;
 import javafx.stage.Stage;
 import sliders.LabelledSlider;
 
@@ -44,12 +47,13 @@ public class Main extends Application{
 	@FXML ToggleGroup tgReadLength;
 	@FXML LabelledSlider lsError;
 	@FXML Button bGenerate;
+	@FXML Button bSentence;
 	@FXML Button bShow;
 	@FXML RadioButton rbV;
 	@FXML RadioButton rbF;
 	@FXML GridPane grid;
 	@FXML TitledPane tpOptions;
-	
+
 	double sqSize = 10;
 	double orgSceneX, orgSceneY;
 	double orgTranslateX, orgTranslateY;
@@ -57,7 +61,7 @@ public class Main extends Application{
 	String showButtonText = "Show mould sequence";
 	String hideButtonText = "Hide mould sequence";
 	VBox fragmentVBox;
-	
+
 	Group mould;
 	VBox readsBox;
 	List<LabelledSlider> readSliders = new ArrayList<LabelledSlider>();
@@ -194,8 +198,77 @@ public class Main extends Application{
 		isReadsLengthFixed = false;
 		return box;
 	}
+	@FXML protected void onSentenceButton(ActionEvent event) {
+		cleanAndClose();
 
-	private void drawSequences(Sequence seq, List<Sequenceable> reads, int error) {
+		//get settings
+		int poolSize = lsPoolSize.getValue().intValue();
+		int error = lsError.getValue().intValue();
+
+		//generate target
+		TextSequence seq = TextSequence.generate();
+
+		List<Sequenceable> reads;
+
+		//fixed or variable length?
+		if(isReadsLengthFixed){
+			int readsLength = readSliders.get(0).getValue().intValue();
+			reads = seq.generateFixedSizedReads(readsLength, poolSize);
+		}
+
+		else{
+			double min = readSliders.get(0).getValue().intValue();
+			double max = readSliders.get(1).getValue().intValue();
+			//TODO implement scale
+
+			reads= seq.generateVariableSizeReads((max+min)/2, (max-min)/2, poolSize);
+		}
+
+		drawSequences(seq,reads,error);
+	}
+
+	@FXML protected void onGenerateButton(ActionEvent event) {
+		cleanAndClose();
+
+		//get settings
+		int targetSize = lsTargetLength.getValue().intValue();
+		int poolSize = lsPoolSize.getValue().intValue();
+		int error = lsError.getValue().intValue();
+
+		//generate target
+		Sequence seq = Sequence.generate(targetSize);
+
+		List<Sequenceable> reads;
+
+		//fixed or variable length?
+		if(isReadsLengthFixed){
+			int readsLength = readSliders.get(0).getValue().intValue();
+			reads = seq.generateFixedSizedReads(readsLength, poolSize);
+		}
+
+		else{
+			double min = readSliders.get(0).getValue().intValue();
+			double max = readSliders.get(1).getValue().intValue();
+			//TODO implement scale
+
+			reads= seq.generateVariableSizeReads((max+min)/2, (max-min)/2, poolSize);
+		}
+
+		drawSequences(seq,reads,error);
+	}
+
+	/**
+	 * Cleans the sequence drawing and collapses the options pane
+	 */
+	private void cleanAndClose() {
+		//clear previous case
+		vbSeq.getChildren().clear();
+
+		//collapse options pane
+		tpOptions.setExpanded(false);
+	}
+
+	private void drawSequences(Sequenceable seq, List<Sequenceable> reads, int error) {
 		vbSeq.setSpacing(sqSize);
 		fragmentVBox = new VBox(sqSize/2); //use sqSize as spacing value between children
 
@@ -209,18 +282,29 @@ public class Main extends Application{
 			double xPos = sqSize*i;
 			Rectangle rectangle = new Rectangle(xPos, 0, sqSize, sqSize); //xpos, ypos, width, height
 			rectangle.setFill(Color.web(seq.getColor(i)));
-			mould.getChildren().add(rectangle);
+			if(seq.getClass()==TextSequence.class) {
+				rectangle.setStrokeType(StrokeType.OUTSIDE);
+				rectangle.setStroke(Color.LIGHTGRAY);
+				rectangle.setStrokeWidth(1);
+				Text text = new Text(xPos, sqSize,(seq.get(i).toString()));
+				text.setBoundsType(TextBoundsType.VISUAL);
+				Group group = new Group(rectangle, text);
+				mould.getChildren().add(group);
+			}
+			else {
+				mould.getChildren().add(rectangle);
+			}
 		}
 
 		vbSeq.getChildren().add(mould);
 		mould.setVisible(false); //start hidden
-		
+
 		//introduce error and draw fragments
 		for (int i = 0; i < reads.size(); i++) {
 			Sequenceable read = reads.get(i);
 			read.introduceError(error);
 			Group bar = new Group();
-			
+
 			//adding number
 			String number = Integer.toString(i);
 			int margin = 3-number.length();
@@ -228,21 +312,33 @@ public class Main extends Application{
 			space.setFill(Color.TRANSPARENT);
 			Text text = new Text(sqSize*margin, 10, number);	
 			bar.getChildren().addAll(space,text);
-			
+
 			for (int j = 0; j < read.size(); j++) {
 				double xPos = sqSize*(j+3);
 				Rectangle rectangle = new Rectangle(xPos, 0, sqSize, sqSize); //xpos, ypos, width, height
 				rectangle.setFill(Color.web(read.getColor(j)));
-				bar.getChildren().add(rectangle);
+				if(read.getClass()==TextSequence.class) {
+					rectangle.setStrokeType(StrokeType.OUTSIDE);
+					rectangle.setStroke(Color.LIGHTGRAY);
+					rectangle.setStrokeWidth(1);
+					Text label = new Text(xPos, sqSize,(read.get(j).toString()));
+					label.setBoundsType(TextBoundsType.VISUAL);
+					Group group = new Group(rectangle, label);
+					bar.getChildren().add(group);
+				}
+				else {
+					bar.getChildren().add(rectangle);
+				}
+				
 			}
-			
+
 			prepareBar(bar);
 			fragmentVBox.getChildren().add(bar);
 		}
 
 		vbSeq.getChildren().add(fragmentVBox);
 	}
-	
+
 	private void prepareBar(Group bar) {
 		DropShadow highlight = new DropShadow(sqSize, Color.BLACK);
 		bar.setEffect(highlight);
@@ -250,40 +346,6 @@ public class Main extends Application{
 		bar.setOnMousePressed(groupOnMousePressedEventHandler);
 		bar.setOnMouseDragged(groupOnMouseDraggedEventHandler);
 		bar.setOnMouseReleased(groupOnMouseRelesedEventHandler);
-	}
-
-	@FXML protected void onGenerateButton(ActionEvent event) {
-		//clear previous case
-		vbSeq.getChildren().clear();
-		
-		//collapse options pane
-		tpOptions.setExpanded(false);
-
-		//get settings
-		int targetSize = lsTargetLength.getValue().intValue();
-		int poolSize = lsPoolSize.getValue().intValue();
-		int error = lsError.getValue().intValue();
-
-		//generate target
-		Sequence seq = Sequence.generator(targetSize);
-		
-		List<Sequenceable> reads;
-		
-		//fixed or variable length?
-		if(isReadsLengthFixed){
-			int readsLength = readSliders.get(0).getValue().intValue();
-			reads = seq.generateFixedSizedReads(readsLength, poolSize);
-		}
-		
-		else{
-			double min = readSliders.get(0).getValue().intValue();
-			double max = readSliders.get(1).getValue().intValue();
-			//TODO implement scale
-			
-			reads= seq.generateVariableSizeReads((max+min)/2, (max-min)/2, poolSize);
-		}
-		
-		drawSequences(seq,reads,error);
 	}
 
 	EventHandler<MouseEvent> groupOnMousePressedEventHandler = 
@@ -296,7 +358,7 @@ public class Main extends Application{
 			draggedBar = (Group) t.getSource();
 			orgTranslateX = draggedBar.getTranslateX();
 			orgTranslateY = draggedBar.getTranslateY();
-			
+
 		}
 	};
 
@@ -307,13 +369,13 @@ public class Main extends Application{
 		public void handle(MouseEvent t) {
 			double offsetX = t.getSceneX() - orgSceneX;
 			double newTranslateX = orgTranslateX + offsetX;
-			
+
 			double offsetY = t.getSceneY() - orgSceneY;
 			double newTranslateY = orgTranslateY + offsetY;
 
 			double nSq = Math.round((newTranslateX)/sqSize);
 			newTranslateX = sqSize*nSq;
-			
+
 			draggedBar.setTranslateX(newTranslateX); //move copy
 			draggedBar.setTranslateY(newTranslateY);
 		}
@@ -326,7 +388,7 @@ public class Main extends Application{
 		public void handle(MouseEvent t) {
 			double offsetY = t.getSceneY() - orgSceneY;
 			double newTranslateY = orgTranslateY + offsetY;
-			
+
 			int nRows = (int) Math.round(newTranslateY/(sqSize*2+1));
 			int currentIndex = fragmentVBox.getChildren().indexOf(draggedBar);
 			int newIndex = currentIndex+nRows;

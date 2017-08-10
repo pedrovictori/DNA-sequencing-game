@@ -46,7 +46,7 @@ public class TextSequence extends AbstractList<Character> implements Sequenceabl
 	 */
 	public static TextSequence generate() {
 		TextFile file = new TextFile("sentences.txt");
-		int random = ThreadLocalRandom.current().nextInt(0, file.getLinesNumber() + 1);
+		int random = ThreadLocalRandom.current().nextInt(1, file.getLinesNumber()+1);
 		return new TextSequence(file.getLine(random));
 	}
 	
@@ -57,7 +57,7 @@ public class TextSequence extends AbstractList<Character> implements Sequenceabl
 	public List<Sequenceable> generateFixedSizedReads(int length, int poolSize){
 		List<Sequenceable> reads = new ArrayList<Sequenceable>();
 		int[] indexes = MathTools.genRandomUniqueIntegers(poolSize, 0, size()-length-1);
-
+		
 		for(int i=0;i<poolSize;i++){
 			/* we could simply add a cast to Sequence, since Sequence itself is a subclass of List, 
 			 * but this way we create a new object, independent from the mould */
